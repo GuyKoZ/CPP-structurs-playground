@@ -1,0 +1,153 @@
+#include <iostream>
+#include <string.h>
+using namespace std;
+
+#define MAX_FLAVOUR_LEN 10
+#define MAX_CARD_LEN 50
+#define NUM_OF_CAKES 3
+
+struct birthday_cake
+{
+	char flavour[MAX_FLAVOUR_LEN];
+	int numOfCandles;
+};
+struct present
+{
+	char* from;
+	char card[MAX_CARD_LEN];
+};
+struct birthday_party
+{
+	int age;
+	birthday_cake allCakes[NUM_OF_CAKES];
+	int numOfGuests;
+	int numOfPresents;
+	present** allPresents;
+};
+void printBirthdayParty(const birthday_party& myBirthday);
+void initBirthdayParty(birthday_party& myBirthday, int age, int numOfGuests, char cakesFlavours[NUM_OF_CAKES][MAX_FLAVOUR_LEN]);
+void addPresent(birthday_party& myParty, const char* from, const char* cardText);
+void deleteBirthdayPartyMemory(birthday_party& myBirthday);
+const char* getFriendWithLongestCard(const birthday_party& myBirthday, char ch);
+void printBirthdayParty(const birthday_party& myBirthday);
+
+
+void main()
+{
+
+	birthday_party myBirthdayParty;
+	char cakesFlavours[NUM_OF_CAKES][MAX_FLAVOUR_LEN] = { "Chocolate", "Cheese", "Apple" };
+	initBirthdayParty(myBirthdayParty, 20, 50, cakesFlavours);
+	addPresent(myBirthdayParty, "Yossi", "Mazal Tov!");
+	addPresent(myBirthdayParty, "Yoram", "Yomuledet Sameach!");
+	addPresent(myBirthdayParty, "Yael", "Ad 100 like 20!");
+	addPresent(myBirthdayParty, "Yaron", "I didn’t write anything");
+	printBirthdayParty(myBirthdayParty);
+	getFriendWithLongestCard(myBirthdayParty, 'Y');
+	deleteBirthdayPartyMemory(myBirthdayParty);
+}
+
+void deleteBirthdayPartyMemory(birthday_party& myBirthday)
+{
+	int s = 0;
+	for (int z = 0; z < NUM_OF_CAKES; z++)
+	{
+		while (*myBirthday.allCakes[z].flavour != '\0')
+		{
+			myBirthday.allCakes[z].flavour[s] = {};
+			s++;
+		}
+		s = 0;
+		myBirthday.allCakes[z].numOfCandles = 0;
+	}
+
+	for (int i = 0; i < myBirthday.numOfPresents; i++)
+	{
+		delete(myBirthday.allPresents[i]);
+	}
+	delete (myBirthday.allPresents);
+	myBirthday.numOfGuests = {};
+	myBirthday.numOfPresents = {};
+	myBirthday.age = {};
+}
+
+void initBirthdayParty(birthday_party& myBirthday, int age, int numOfGuests, char cakesFlavours[NUM_OF_CAKES][MAX_FLAVOUR_LEN])
+{
+	int i;
+	myBirthday.age = age;
+	myBirthday.numOfPresents = 0;
+	for (i = 0; i < NUM_OF_CAKES; i++)
+	{
+		strcpy_s(myBirthday.allCakes[i].flavour, cakesFlavours[i]);
+		myBirthday.allCakes[i].numOfCandles = age + 1;
+	}
+	myBirthday.numOfGuests = numOfGuests;
+
+	myBirthday.allPresents = new present * [numOfGuests];
+	for (i = 0; i < myBirthday.numOfGuests; i++)
+	{
+		myBirthday.allPresents[i] = new present;
+		myBirthday.allPresents[i]->from = new char;
+	}
+}
+
+
+const char* getFriendWithLongestCard(const birthday_party& myBirthday, char ch)
+{
+	int i = 0, max = 0, help, flag = 0, temp = 0;
+	for (i = 0; i < myBirthday.numOfPresents; i++)
+	{
+		if (myBirthday.allPresents[i]->from[0] == ch)
+		{
+			help = strlen(myBirthday.allPresents[i]->card);
+			if (help > max)
+			{
+				max = help;
+				temp = i;
+				flag++;
+			}
+		}
+	}
+	if (flag == 0)
+	{
+		return NULL;
+	}
+	else
+	{
+
+		cout << myBirthday.allPresents[temp]->from;
+	}
+}
+
+void printBirthdayParty(const birthday_party& myBirthday)
+{
+	cout << "Your age is " << myBirthday.age << " and the cakes are: ";
+	for (int i = 0; i < NUM_OF_CAKES; i++)
+	{
+		cout << myBirthday.allCakes[i].flavour << " ";
+	}
+	cout << "\nYou invited " << myBirthday.numOfGuests << " friedns and these are the friends who brought you presents: ";
+	for (int i = 0; i < myBirthday.numOfPresents; i++)
+	{
+		cout << myBirthday.allPresents[i]->from << " ";
+	}
+	cout << "\nHappy Birthday!!\n";
+}
+
+void addPresent(birthday_party& myParty, const char* from, const char* cardText)
+{
+	int num;
+	num = strlen(from) + 1;
+	int z = 0;
+	strcpy_s(myParty.allPresents[myParty.numOfPresents]->card, cardText);
+	myParty.allPresents[myParty.numOfPresents]->from = new char[num];
+	while (*from != '\0')
+	{
+		myParty.allPresents[myParty.numOfPresents]->from[z] = *from;
+		from++;
+		z++;
+	}
+	myParty.allPresents[myParty.numOfPresents]->from[z] = '\0';
+	myParty.numOfPresents++;
+}
+
